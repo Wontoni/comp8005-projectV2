@@ -1,0 +1,38 @@
+digraph Victim {
+    node [shape=circle; fontsize=10; width=1;height=1;];
+    edge [fontsize=10];
+
+    START [label="START", shape=doublecircle]
+    PARSE_ARGS [label="PARSE_ARGS", shape=circle]
+    HANDLE_ARGS [label="HANDLE_ARGS", shape=circle]
+    HANDLE_ERROR [label="HANDLE_ERROR", shape=circle]
+    DISPLAY_MESSAGE [label="DISPLAY_MESSAGE", shape=circle]
+    SOCKET_CREATED [label="SOCKET_CREATED", shape=circle]
+    SOCKET_BINDED [label="SOCKET_BINDED", shape=circle]
+    SEND_DATA [label="SEND_DATA", shape=circle]
+    LISTENING [label="LISTENING", shape=circle]
+    CONNECTION_RECEIVED [label="CONNECTION_RECEIVED", shape=circle]
+    HANDLE_CONNECTION [label="HANDLE_CONNECTION", shape=circle]
+    EXECUTING [label="EXECUTING", shape=circle]
+    CLEANUP [label="CLEANUP", shape=circle]
+    EXIT [label="EXIT", shape=doublecircle]
+
+    START -> PARSE_ARGS [label="parse_args"]
+    PARSE_ARGS -> HANDLE_ARGS [label="handle_args"]
+    PARSE_ARGS -> HANDLE_ERROR [label="handle_error"]
+    HANDLE_ARGS -> SOCKET_CREATED [label="create_socket"]
+    HANDLE_ARGS -> HANDLE_ERROR [label="handle_error"]
+    SOCKET_CREATED -> SOCKET_BINDED [label="bind_socket"]
+    SOCKET_CREATED -> HANDLE_ERROR [label="handle_error"]
+    SOCKET_BINDED -> SEND_DATA [label="send_data"]
+    SOCKET_BINDED -> HANDLE_ERROR [label="handle_error"]
+    SEND_DATA -> LISTENING [label="listen_connection"]
+    SEND_DATA -> HANDLE_ERROR [label="handle_error"]
+    LISTENING -> CONNECTION_RECEIVED [label="receive_connection"]
+    CONNECTION_RECEIVED -> HANDLE_CONNECTION [label="handle_connection"]
+    HANDLE_CONNECTION -> DISPLAY_MESSAGE [label="display_message"]
+    HANDLE_CONNECTION -> HANDLE_ERROR [label="handle_error"]
+    DISPLAY_MESSAGE -> CLEANUP [label="cleanup"]
+    HANDLE_ERROR -> CLEANUP [label="cleanup"]
+    CLEANUP -> EXIT
+}

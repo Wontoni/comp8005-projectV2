@@ -91,7 +91,6 @@ def receieve_response():
         handle_error("Failed to receive response from server")
         exit(1)
 
-
 def is_ipv4(ip_str):
     try:
         ipaddress.IPv4Address(ip_str)

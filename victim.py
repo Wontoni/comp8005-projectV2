@@ -16,7 +16,7 @@ def main():
             try:
                 data = receive_data(conn)
                 output = run_command(data)
-                send_message(conn, output)
+                send_response(conn, output)
             finally:
                 conn.close()
     except KeyboardInterrupt:
@@ -26,15 +26,6 @@ def main():
         handle_error(f"Unexpected error occurred: {e}")
     finally:
         cleanup(False)
-
-def run_command(command):
-    try:
-        result = subprocess.run(command.split(' '), text=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        return result
-    except FileNotFoundError as e:
-        return e
-    except subprocess.SubprocessError as e:
-        return e
 
 def create_socket():
     try:
@@ -49,10 +40,16 @@ def bind_socket():
     try:
         addr = (server_host, server_port)
         server.bind(addr)
+        listen()
+    except Exception as e:
+        handle_error(f"Failed to bind to the server: {e}")
+
+def listen():
+    try:
         server.listen(5)
         print('Server binded and waiting for incoming connections...')
     except Exception as e:
-        handle_error(f"Failed to bind to the server: {e}")
+        handle_error(f"Failed to listen for connections: {e}")
 
 def accept_connection():
     try:
@@ -83,9 +80,18 @@ def receive_data(conn):
     except Exception as e:
         handle_error(f"Failed to receive data: {e}")
 
-def send_message(conn, words):
+def run_command(command):
     try:
-        encoded = pickle.dumps(words)
+        result = subprocess.run(command.split(' '), text=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        return result
+    except FileNotFoundError as e:
+        return e
+    except subprocess.SubprocessError as e:
+        return e
+
+def send_response(conn, message):
+    try:
+        encoded = pickle.dumps(message)
         conn.sendall(struct.pack(">I", len(encoded)))
         conn.sendall(encoded)
     except Exception as e:

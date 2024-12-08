@@ -1,0 +1,25 @@
+digraph Attacker {
+    node [shape=circle; fontsize=10; width=1;height=1;];
+    edge [fontsize=10];
+
+    START [label="START", shape=doublecircle]
+    HANDLE_ERROR [label="HANDLE_ERROR", shape=circle]
+    SOCKET_CREATED [label="SOCKET_CREATED", shape=circle]
+    SOCKET_BINDED [label="SOCKET_BINDED", shape=circle]
+    LISTENING [label="LISTENING", shape=circle]
+    CONNECTION_RECEIVED [label="CONNECTION_RECEIVED", shape=circle]
+    HANDLE_CONNECTION [label="HANDLE_CONNECTION", shape=circle]
+    CLEANUP [label="CLEANUP", shape=circle]
+    EXIT [label="EXIT", shape=doublecircle]
+
+    START -> SOCKET_CREATED [label="parse_args"]
+    SOCKET_CREATED -> SOCKET_BINDED [label="bind_socket"]
+    SOCKET_CREATED -> HANDLE_ERROR [label="handle_error"]
+    SOCKET_BINDED -> LISTENING [label="listen_connection"]
+    SOCKET_BINDED -> HANDLE_ERROR [label="handle_error"]
+    LISTENING -> CONNECTION_RECEIVED [label="receive_connection"]
+    CONNECTION_RECEIVED -> HANDLE_CONNECTION [label="handle_connection"]
+    HANDLE_CONNECTION -> CONNECTION_RECEIVED [label="receive_connection"]
+    HANDLE_ERROR -> CLEANUP [label="cleanup"]
+    CLEANUP -> EXIT
+}
