@@ -7,9 +7,7 @@ import pickle
 # Variables to change based on server host location
 
 # Change to ipv4 for connection via IPv4 Address or ipv6 for IPv6
-server_port = 8080
-
-
+server_port = None
 command = None
 server_host = None
 client = None
@@ -26,18 +24,25 @@ def main():
 
 def check_args(args):
     try:
-        if len(args) != 3:
+        if len(args) != 4:
             raise Exception("Invalid number of arguments")
+        if args[3] == '':
+            handle_error('Invalid empty command')
+        int(args[2])
         is_ipv4(args[1]) # Will handle invalid addresses
+    except ValueError as e:
+        handle_error('Invalid port inputted')
     except Exception as e:
         handle_error(e)
         exit(1)
 
 def handle_args(args):
-    global command, server_host
+    global command, server_port, server_host
     try:
-        command = sys.argv[2]
-        server_host = sys.argv[1]
+        command = args[3]
+        server_port = int(args[2])
+        server_host = args[1]
+
     except Exception as e:
         handle_error("Failed to retrieve inputted arguments.")
 
@@ -65,7 +70,7 @@ def send_message():
         
     except Exception as e:
         print(e)
-        handle_error("Failed to send words")
+        handle_error("Failed to send command")
         exit(1)
 
 def receieve_response():
@@ -82,6 +87,7 @@ def receieve_response():
 
         display_message(decoded_response)
     except Exception as e:
+        print(e)
         handle_error("Failed to receive response from server")
         exit(1)
 
@@ -107,13 +113,18 @@ def handle_error(err_message):
     
 def display_message(message):
     print('Received response')
-    if message.stderr:
-        print(message.stderr)
-    elif message.stdout:
-        print(message.stdout)
-    else:
-        print(message)
-    cleanup(True)
+    try:
+        if not hasattr(message, 'stderr') and not hasattr(message, 'stdout'):
+            print(message)
+            cleanup(False)
+        elif message.stderr:
+            print(message.stderr)
+            cleanup(False)
+        else:
+            print(message.stdout)
+            cleanup(True)
+    except Exception as e:
+        handle_error("Failed to display response")
 
 def cleanup(success):
     if client:
